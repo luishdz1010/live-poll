@@ -14,24 +14,41 @@ import React from 'react';
 import Dispatcher from './core/Dispatcher';
 import ActionTypes from './constants/ActionTypes';
 import AppStore from './stores/AppStore';
-import _io from 'socket.io'
+import _io from 'socket.io';
+import _pg from 'pg';
+
+var pg = pg.native;
 
 var server = express();
 var htttpServer = require('http').Server(server);
-var io = _io(server);
+var io = _io(htttpServer);
 
-io.on('connection', function() {
+pg.connect(process.env.DATABASE_URL || 'postgres://auvmmorzaxyjdp:EJL4e2wYI1EDAQCpd-qH9LlbNs@ec2-54-83-57-86.compute-1.amazonaws.com:5432/de83incbuggqoh?sslmode=require', function(err, db, done){
+  if(err) {
+    throw err;
+  }
 
-  socket.emit('PollResults', currPollResults);
+  let currPollResults = [];
 
-  socket.on('Vote', function(){
-
+  db.query('SELECT * FROM poll GROUP BY target', function(err, res){
+    console.log(process.env, err, res);
   });
 
-  socket.on('AddOption', function(){
+  io.on('connection', function() {
 
+    socket.emit('PollResults', currPollResults);
+
+    socket.on('Vote', function(){
+
+    });
+
+    socket.on('AddOption', function(){
+
+    });
   });
 });
+
+
 
 server.set('port', (process.env.PORT || 5000));
 server.use(express.static(path.join(__dirname)));
